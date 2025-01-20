@@ -23,7 +23,7 @@ ToolBox 是一个基于 WPF 的工具箱应用程序，支持设计模式和运�
 
 1. 克隆本仓库：
    ```bash
-   git clone https://github.com/your-repo/ToolBox.git
+   git clone https://github.com/YoudiasGray/ToolBox
    ```
 2. 使用 Visual Studio 打开 `ToolBox.sln` 文件。
 3. 编译并运行项目。
