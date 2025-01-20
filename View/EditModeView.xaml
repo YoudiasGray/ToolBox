@@ -1,0 +1,91 @@
+﻿<Page
+    x:Class="ToolBox.View.EditModeView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:ToolBox.View"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="EditModeView"
+    d:DesignHeight="450"
+    d:DesignWidth="1200"
+    mc:Ignorable="d">
+    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding CommandsList}">
+        <!--  其他列定义  -->
+        <DataGrid.Columns>
+            <DataGridTemplateColumn Header="位置调整">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}, Path=Item}"
+                                Content="↑" />
+                            <Button
+                                Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}, Path=Item}"
+                                Content="↓" />
+                        </StackPanel>
+
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridCheckBoxColumn Binding="{Binding IsBatCommand}" Header="是否bat" />
+            <DataGridTextColumn
+                MinWidth="100"
+                Binding="{Binding ButtonName}"
+                Header="按钮名称">
+                <DataGridTextColumn.ElementStyle>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="TextWrapping" Value="Wrap" />
+                    </Style>
+                </DataGridTextColumn.ElementStyle>
+            </DataGridTextColumn>
+            <DataGridTextColumn MinWidth="200" Binding="{Binding ExecutorCommandOrPath}">
+                <DataGridTextColumn.HeaderTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="执行器">
+                            <TextBlock.ToolTip>
+                                <ToolTip Content="外部可执行文件绝对路径，exe或者bat等" />
+                            </TextBlock.ToolTip>
+                        </TextBlock>
+                    </DataTemplate>
+                </DataGridTextColumn.HeaderTemplate>
+                <DataGridTextColumn.ElementStyle>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="TextWrapping" Value="Wrap" />
+                    </Style>
+                </DataGridTextColumn.ElementStyle>
+            </DataGridTextColumn>
+            <DataGridTemplateColumn Header="选择">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Button
+                            Command="{Binding DataContext.SelectFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}, Path=Item}"
+                            Content="···" />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn
+                MinWidth="100"
+                Binding="{Binding ExecutroArgs}"
+                Header="执行参数">
+                <DataGridTextColumn.ElementStyle>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="TextWrapping" Value="Wrap" />
+                    </Style>
+                </DataGridTextColumn.ElementStyle>
+            </DataGridTextColumn>
+            <DataGridTextColumn
+                MinWidth="200"
+                Binding="{Binding TipDescription}"
+                Header="提示">
+                <DataGridTextColumn.ElementStyle>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="TextWrapping" Value="Wrap" />
+                    </Style>
+                </DataGridTextColumn.ElementStyle>
+            </DataGridTextColumn>
+        </DataGrid.Columns>
+    </DataGrid>
+</Page>
