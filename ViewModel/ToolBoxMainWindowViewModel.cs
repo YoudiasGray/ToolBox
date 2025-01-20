@@ -21,22 +21,26 @@ namespace ToolBox.ViewModel
             // 首次启动尝试读取配置文件
             if (File.Exists("config.json"))
             {
-                string config = File.ReadAllText("config.json", Encoding.UTF8);
-
-                ButtonsInfo.Instance.ButtonInfoList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ToolBoxModel>>(config);
-
-                // 如果解析有错，将会得到null, 此时需要重新创建一个空的列表
-                if (ButtonsInfo.Instance.ButtonInfoList == null)
+                string? config = File.ReadAllText("config.json", Encoding.UTF8);
+                if (config != null)
                 {
-                    ButtonsInfo.Instance.ButtonInfoList = new List<ToolBoxModel>() { };
+                    var buttonList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ToolBoxModel>>(config);
+                    ButtonsInfo.Instance.ButtonInfoList = buttonList ?? new List<ToolBoxModel>();
                 }
+                else
+                {
+                    ButtonsInfo.Instance.ButtonInfoList = new List<ToolBoxModel>();
+                }
+            }
+            else
+            {
+                ButtonsInfo.Instance.ButtonInfoList = new List<ToolBoxModel>();
             }
 
             PageContent = _runModeView;
 
-            BuildVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            BuildVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
             VersionInfo = $"V{MajorVersion}.{MinorVersion}.{PathcVersion}.{BuildVersion}";
-
         }
 
         #region 属性
@@ -120,10 +124,13 @@ namespace ToolBox.ViewModel
         {
             if (PageContent is EditModeView editModeView)
             {
-                EditModeViewModel viewModel = editModeView.DataContext as EditModeViewModel;
-                ButtonsInfo.Instance.ButtonInfoList = viewModel.CommandsList.ToList();
-                string configStr = Newtonsoft.Json.JsonConvert.SerializeObject(ButtonsInfo.Instance.ButtonInfoList, Newtonsoft.Json.Formatting.Indented);
-                File.WriteAllText("config.json", configStr, Encoding.UTF8);
+                if (editModeView.DataContext is EditModeViewModel viewModel)
+                {
+                    var commands = viewModel.CommandsList ?? new System.Collections.ObjectModel.ObservableCollection<ToolBoxModel>();
+                    ButtonsInfo.Instance.ButtonInfoList = commands.ToList();
+                    string configStr = Newtonsoft.Json.JsonConvert.SerializeObject(ButtonsInfo.Instance.ButtonInfoList, Newtonsoft.Json.Formatting.Indented);
+                    File.WriteAllText("config.json", configStr, Encoding.UTF8);
+                }
             }
         }
 
@@ -141,10 +148,18 @@ namespace ToolBox.ViewModel
                 if (openFileDialog.ShowDialog() is true)
                 {
                     string fileName = openFileDialog.FileName;
-                    string config = File.ReadAllText(fileName, Encoding.UTF8);
-                    ButtonsInfo.Instance.ButtonInfoList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ToolBoxModel>>(config);
-                    EditModeViewModel viewModel = editModeView.DataContext as EditModeViewModel;
-                    viewModel.CommandsList = new System.Collections.ObjectModel.ObservableCollection<ToolBoxModel>(ButtonsInfo.Instance.ButtonInfoList);
+                    string? config = File.ReadAllText(fileName, Encoding.UTF8);
+                    if (config != null)
+                    {
+                        var buttonList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ToolBoxModel>>(config);
+                        ButtonsInfo.Instance.ButtonInfoList = buttonList ?? new List<ToolBoxModel>();
+
+                        if (editModeView.DataContext is EditModeViewModel viewModel)
+                        {
+                            viewModel.CommandsList = new System.Collections.ObjectModel.ObservableCollection<ToolBoxModel>(
+                                ButtonsInfo.Instance.ButtonInfoList ?? new List<ToolBoxModel>());
+                        }
+                    }
                 }
             }
         }
@@ -162,11 +177,12 @@ namespace ToolBox.ViewModel
                 };
                 if (saveFileDialog.ShowDialog() is true)
                 {
-
-                    EditModeViewModel viewModel = editModeView.DataContext as EditModeViewModel;
-                    ButtonsInfo.Instance.ButtonInfoList = viewModel.CommandsList.ToList();
-                    string configStr = Newtonsoft.Json.JsonConvert.SerializeObject(ButtonsInfo.Instance.ButtonInfoList, Newtonsoft.Json.Formatting.Indented);
-                    File.WriteAllText(saveFileDialog.FileName, configStr, Encoding.UTF8);
+                    if (editModeView.DataContext is EditModeViewModel viewModel)
+                    {
+                        ButtonsInfo.Instance.ButtonInfoList = viewModel.CommandsList?.ToList() ?? new List<ToolBoxModel>();
+                        string configStr = Newtonsoft.Json.JsonConvert.SerializeObject(ButtonsInfo.Instance.ButtonInfoList, Newtonsoft.Json.Formatting.Indented);
+                        File.WriteAllText(saveFileDialog.FileName, configStr, Encoding.UTF8);
+                    }
                 }
             }
         }
